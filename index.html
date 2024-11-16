@@ -73,11 +73,15 @@
     <script>
         $(function () {
 
+            const filterPerson = getQueryParameter("person");
+
+            console.log();
+
             getKurs((kurs) => {
-                refresh(kurs);
+                refresh(kurs, filterPerson);
 
                 setInterval(() => {
-                    refresh(kurs);
+                    refresh(kurs, filterPerson);
                 }, 1000);
             });
         });
@@ -91,7 +95,7 @@
             $('.crypto[type="balance"]').show();
         }
 
-        function refresh(kurs) {
+        function refresh(kurs, filterPerson) {
             const list = $('<div id="list"></div>')
 
             list.append(`
@@ -113,6 +117,9 @@
 
                         crypto.symbol = crypto.symbol.replaceAll('EUR', '').replaceAll('USDT', '');
 
+                        if(filterPerson == null) {
+
+                        }
                         list.append(`
                             <div class="crypto" type="price">
                                 <span class="crypto-name">${crypto.symbol}</span>
@@ -156,13 +163,17 @@
                         method: 'GET',
                         success: function (kaspa) {
 
+                            if(filterPerson == null) {
+                                
+                            }
+
                             list.append(`
                                 <div class="crypto" type="price">
                                     <span class="crypto-name">KAS</span>
                                     <span class="crypto-price">${parseFloat(kaspa.price * kurs).toFixed(6)}€</span>
                                 </div>
                             `);
-
+                            
                             list.append(`
                                 <div class="crypto" type="balance" person="Mom">
                                     <span class="crypto-name">KAS Mom</span>
@@ -175,21 +186,21 @@
                             const sumDome = sumPerson(list, 'Dome');
 
                             list.append(`
-                                <div class="crypto" type="sum" style="background: #383a83;">
+                                <div class="crypto" type="sum" style="background: #383a83;" person="Mom">
                                     <span class="crypto-name">Mom Total Balance</span>
                                     <span class="crypto-price">${sumMom.toFixed(2)}€</span>
                                 </div>
                             `);
 
                             list.append(`
-                                <div class="crypto" type="sum" style="background: #383a83;">
+                                <div class="crypto" type="sum" style="background: #383a83;" person="Bro">
                                     <span class="crypto-name">Bro Total Balance</span>
                                     <span class="crypto-price">${sumBro.toFixed(2)}€</span>
                                 </div>
                             `);
 
                             list.append(`
-                                <div class="crypto" type="sum" style="background: #383a83;">
+                                <div class="crypto" type="sum" style="background: #383a83;" person="Dome">
                                     <span class="crypto-name">Dome Total Balance</span>
                                     <span class="crypto-price">${sumDome.toFixed(2)}€</span>
                                 </div>
@@ -202,6 +213,11 @@
                             const formattedDate = date.toISOString().slice(0, 19).replace("T", " ");
 
                             $('#refresh-date').html(formattedDate);
+
+                            if(filterPerson != null && filterPerson != '') {
+                                $(`.crypto[person!="${filterPerson}"]`).hide();
+                                $(`.crypto[person="${filterPerson}"]`).show();
+                            }
                         },
                         error: function (error) {
                             console.error(error);
@@ -242,6 +258,12 @@
                 }
             });
         }
+
+        function getQueryParameter(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
     </script>
 </body>
 
