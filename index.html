@@ -53,6 +53,11 @@
             font-size: 16px;
             color: #2ecc71;
         }
+
+        .crypto-details {
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 
@@ -82,7 +87,7 @@
 
                 setInterval(() => {
                     refresh(kurs, filterPerson);
-                }, 1000);
+                }, 100000);
             });
         });
 
@@ -130,27 +135,39 @@
                         if (crypto.symbol == "BTC") {
                             list.append(`
                                 <div class="crypto" type="balance" person="Mom">
-                                    <span class="crypto-name">${crypto.symbol} Mom</span>
+                                    <div class="crypto-details">
+                                        <span class="crypto-name">${crypto.symbol} Mom</span>
+                                        <span class="crypto-value">0.00125713 BTC</span>
+                                    </div>
                                     <span class="crypto-price">${parseFloat(crypto.price * 0.00125713).toFixed(2)}€</span>
                                 </div>
                             `);
                             list.append(`
                                 <div class="crypto" type="balance" person="Bro">
-                                    <span class="crypto-name">${crypto.symbol} Bro</span>
+                                    <div class="crypto-details">
+                                        <span class="crypto-name">${crypto.symbol} Bro</span>
+                                        <span class="crypto-value">0.00101913 BTC</span>
+                                    </div>
                                     <span class="crypto-price">${parseFloat(crypto.price * 0.00101913).toFixed(2)}€</span>
                                 </div>
                             `);
                         } else if (crypto.symbol == "ETH") {
                             list.append(`
                                 <div class="crypto" type="balance" person="Dome">
-                                    <span class="crypto-name">${crypto.symbol} Dome</span>
+                                    <div class="crypto-details">
+                                        <span class="crypto-name">${crypto.symbol} Dome</span>
+                                        <span class="crypto-value">0.01298029 ETH</span>
+                                    </div>
                                     <span class="crypto-price">${parseFloat(crypto.price * 0.01298029).toFixed(2)}€</span>
                                 </div>
                             `);
                         } else if (crypto.symbol == "BONK") {
                             list.append(`
                                 <div class="crypto" type="balance" person="Mom">
-                                    <span class="crypto-name">${crypto.symbol} Mom</span>
+                                    <div class="crypto-details">
+                                        <span class="crypto-name">${crypto.symbol} Mom</span>
+                                        <span class="crypto-value">2178649.23747276 BONK</span>
+                                    </div>
                                     <span class="crypto-price">${parseFloat(crypto.price * kurs * 2178649.23747276).toFixed(2)}€</span>
                                 </div>
                             `);
@@ -176,7 +193,10 @@
                             
                             list.append(`
                                 <div class="crypto" type="balance" person="Mom">
-                                    <span class="crypto-name">KAS Mom</span>
+                                    <div class="crypto-details">
+                                        <span class="crypto-name">KAS Mom</span>
+                                        <span class="crypto-value">382.42081862 KAS</span>
+                                    </div>
                                     <span class="crypto-price">${parseFloat(kaspa.price * kurs * 382.42081862).toFixed(2)}€</span>
                                 </div>
                             `);
