@@ -24,10 +24,11 @@
             border-radius: 12px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             padding: 20px;
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
             overflow-y: auto;
             max-height: 90vh;
+            max-height: -webkit-fill-available;
         }
 
         .crypto-widget h2 {
@@ -89,7 +90,7 @@
 <body>
     <div id="crypto" class="crypto-widget">
         <h2>Krypto Preise</h2>
-        <p>Letztes Preisupdate: <span id="refresh-date">-</span></p>
+        <p style="text-align: center;">Letztes Preisupdate: <span id="refresh-date">-</span></p>
     </div>
 
     <script>
@@ -99,31 +100,31 @@
                 {
                     name: "BTC",
                     coins: 0.00125713,
-                    investmentPrice: 50 
+                    investmentPrice: 50,
                 },
                 {
                     name: "BONK",
                     coins: 2178649.23747276,
-                    investmentPrice: 50 
+                    investmentPrice: 50,
                 },
                 {
                     name: "KAS",
                     coins: 382.42081862,
-                    investmentPrice: 50 
+                    investmentPrice: 50,
                 }
             ],
             Bro: [
                 {
                     name: "BTC",
                     coins: 0.00101913,
-                    investmentPrice: 50 
+                    investmentPrice: 50,
                 }
             ],
             Dome: [
                 {
                     name: "ETH",
                     coins: 0.01298029,
-                    investmentPrice: 10 
+                    investmentPrice: 10,
                 }
             ]
         }
@@ -131,8 +132,6 @@
         $(function () {
 
             const filterPerson = getQueryParameter("person");
-
-            console.log();
 
             getKurs((kurs) => {
                 refresh(kurs, filterPerson);
@@ -176,14 +175,13 @@
                         list.append(`
                             <div class="crypto" type="price">
                                 <span class="crypto-name">${crypto.symbol}</span>
-                                <span class="crypto-price">${crypto.symbol == 'BONK' ? parseFloat(crypto.price * kurs).toFixed(8) : parseFloat(crypto.price).toFixed(2)}€</span>
+                                <span class="t-r crypto-price">${crypto.symbol == 'BONK' ? parseFloat(crypto.price * kurs).toFixed(8) : parseFloat(crypto.price).toFixed(2)}€</span>
                             </div>
                         `);
 
                         Object.entries(INVESTMENTS)
                         .filter(([key, value]) => value.some(item => item.name === crypto.symbol))
                         .forEach(([key, value]) => {
-                            console.log(key, value);
 
                             const inv = INVESTMENTS[key].find(x => x.name == crypto.symbol)
 
@@ -192,10 +190,14 @@
                                     <div class="crypto-details">
                                         <span class="crypto-name">${crypto.symbol} ${key}</span>
                                         <span class="crypto-value">${inv.coins} ${crypto.symbol}</span>
-                                        <span class="crypto-invested">Investiert: ${inv.investmentPrice}€</span>
+                                        <span class="crypto-invested">Investiert: ${inv.investmentPrice.toFixed(2)}€</span>
                                     </div>
                                     <div class="crypto-details">
-                                        <span class="crypto-price">${parseFloat(crypto.price * parseFloat(inv.coins)).toFixed(2)}€</span>
+                                        <span class="t-r ${getPriceClass(parseFloat(crypto.price * parseFloat(inv.coins)), inv.investmentPrice)}">
+                                            ${calculatePercent(parseFloat(crypto.price * parseFloat(inv.coins)), inv.investmentPrice)}%
+                                        </span>
+                                        <span class="t-r" style="color: gray; display: none;">${calculateEuro(parseFloat(crypto.price * parseFloat(inv.coins)), inv.investmentPrice)}€</span>
+                                        <span class="t-r price ${getPriceClass(parseFloat(crypto.price * parseFloat(inv.coins)), inv.investmentPrice)}">${parseFloat(crypto.price * parseFloat(inv.coins)).toFixed(2)}€</span>
                                     </div>
                                 </div>
                             `);
@@ -215,14 +217,13 @@
                             list.append(`
                                 <div class="crypto" type="price">
                                     <span class="crypto-name">KAS</span>
-                                    <span class="crypto-price">${parseFloat(kaspa.price * kurs).toFixed(6)}€</span>
+                                    <span class="t-r crypto-price">${parseFloat(kaspa.price * kurs).toFixed(6)}€</span>
                                 </div>
                             `);
 
                             Object.entries(INVESTMENTS)
                             .filter(([key, value]) => value.some(item => item.name === "KAS"))
                             .forEach(([key, value]) => {
-                                console.log(key, value);
 
                                 const inv = INVESTMENTS[key].find(x => x.name == "KAS")
 
@@ -231,10 +232,15 @@
                                         <div class="crypto-details">
                                             <span class="crypto-name">KAS ${key}</span>
                                             <span class="crypto-value">${inv.coins} KAS</span>
-                                            <span class="crypto-invested">Investiert: ${inv.investmentPrice}€</span>
+                                            <span class="crypto-invested">Investiert: ${inv.investmentPrice.toFixed(2)}€</span>
                                         </div>
                                         <div class="crypto-details">
-                                            <span class="crypto-price">${parseFloat(kaspa.price * kurs * parseFloat(inv.coins)).toFixed(2)}€</span>
+                                            <span class="t-r ${getPriceClass(parseFloat(kaspa.price * kurs * parseFloat(inv.coins)), inv.investmentPrice)}">
+                                                
+                                                ${calculatePercent(parseFloat(kaspa.price * kurs * parseFloat(inv.coins)), inv.investmentPrice)}%
+                                            </span>
+                                            <span class="t-r" style="color: gray; display: none;">${calculateEuro(parseFloat(kaspa.price * kurs * parseFloat(inv.coins)), inv.investmentPrice)}€</span>
+                                            <span class="t-r price ${getPriceClass(parseFloat(kaspa.price * kurs * parseFloat(inv.coins)), inv.investmentPrice)}">${parseFloat(kaspa.price * kurs * parseFloat(inv.coins)).toFixed(2)}€</span>
                                         </div>
                                     </div>
                                 `);
@@ -242,22 +248,23 @@
 
                             Object.entries(INVESTMENTS)
                             .forEach(([key, value]) => {
-                                console.log(key, value);
 
                                 const sum = sumPerson(list, key);
                                 const totalInv = totalInvestments(key);
 
-                                console.log(totalInv)
-
                                 list.append(`
-                                    <div class="crypto" type="sum" style="background: #383a83;" person="${key}">
+                                    <div class="crypto" type="sum" style="background: #10191e;" person="${key}">
                                         <div class="crypto-details">
-                                            <span class="crypto-name">${key} Total Balance</span>
+                                            <span class="crypto-name">${key} totales Guthaben</span>
                                             <span class="crypto-invested">Insgesamt investiert: ${totalInv.toFixed(2)}€</span>
                                         </div>
                                         <div class="crypto-details">
-                                            <span class="${parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) > 0.00 ? 'crypto-price-plus' : parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) == 0.00 ? 'crypto-price-normal' : 'crypto-price-minus'}">${parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) > 0.00 ? '+' + parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) : parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) == 0.00 ? '0.00' : parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2)}%</span>
-                                            <span class="t-r ${parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) > 0.00 ? 'crypto-price-plus' : parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) == 0.00 ? 'crypto-price-normal' : 'crypto-price-minus'}">${sum.toFixed(2)}€</span>
+                                            <span class="t-r ${getPriceClass(sum, totalInv)}">
+                                                
+                                                ${calculatePercent(sum, totalInv)}%
+                                            </span>
+                                            <span class="t-r" style="color: gray; display: none;">${calculateEuro(sum, totalInv)}€</span>
+                                            <span class="t-r price ${getPriceClass(sum, totalInv)}">${sum.toFixed(2)}€</span>
                                         </div>
                                     </div>
                                 `);
@@ -267,7 +274,14 @@
                             $('#crypto').append(list);
 
                             const date = new Date();
-                            const formattedDate = date.toISOString().slice(0, 19).replace("T", " ");
+                            const formattedDate = date.toLocaleString('de-AT', { 
+                                day: '2-digit', 
+                                month: '2-digit', 
+                                year: 'numeric', 
+                                hour: '2-digit', 
+                                minute: '2-digit', 
+                                second: '2-digit' 
+                            }).replace(',', '');
 
                             $('#refresh-date').html(formattedDate);
 
@@ -289,7 +303,7 @@
         }
 
         function sumPerson(list, person) {
-            const sum = list.find(`.crypto[person="${person}"] .crypto-price`).toArray().reduce((total, element) => {
+            const sum = list.find(`.crypto[person="${person}"] .price`).toArray().reduce((total, element) => {
                 const price = parseFloat($(element).text().replace('€', '').trim());
                 return total + price;
             }, 0);
@@ -319,6 +333,19 @@
                     console.error(error);
                 }
             });
+        }
+
+        function calculatePercent(currentValue, startValue) {
+            return parseFloat(((currentValue - startValue) / startValue) * 100).toFixed(2) > 0.00 ? '+' + parseFloat(((currentValue - startValue) / startValue) * 100).toFixed(2) : parseFloat(((currentValue - startValue) / startValue) * 100).toFixed(2) == 0.00 ? '0.00' : parseFloat(((currentValue - startValue) / startValue) * 100).toFixed(2);
+        }
+
+        function calculateEuro(currentValue, startValue) {
+            const euro = (currentValue - startValue);
+            return euro.toFixed(2) > 0.00 ? '+' + euro.toFixed(2) : euro.toFixed(2) == 0.00 ? '0.00' : '-' + euro.toFixed(2);
+        }
+
+        function getPriceClass(currentValue, startValue) {
+            return parseFloat(((currentValue - startValue) / startValue) * 100).toFixed(2) > 0.00 ? 'crypto-price-plus' : parseFloat(((currentValue - startValue) / startValue) * 100).toFixed(2) == 0.00 ? 'crypto-price-normal' : 'crypto-price-minus';
         }
 
         function getQueryParameter(name) {
