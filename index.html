@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Prices</title>
+    <title>Krypto Preise</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
@@ -26,12 +26,15 @@
             padding: 20px;
             max-width: 400px;
             width: 100%;
+            overflow-y: auto;
+            max-height: 90vh;
         }
 
         .crypto-widget h2 {
             text-align: center;
             color: #f39c12;
             margin-bottom: 20px;
+            
         }
 
         .crypto {
@@ -41,7 +44,7 @@
             padding: 10px;
             margin: 10px 0;
             background: #3e3e5e;
-            border-radius: 8px;
+            border-radius: 8px; 
         }
 
         .crypto-name {
@@ -52,30 +55,79 @@
         .crypto-price {
             font-size: 16px;
             color: #2ecc71;
+            text-align: right;
         }
 
         .crypto-details {
             display: flex;
             flex-direction: column;
         }
+
+        .crypto-invested {
+            color: gray;
+
+        }
+
+        .crypto-price-normal {
+            color: lightgray;
+        }
+
+        .crypto-price-plus {
+            color: #2ecc71;
+        }
+
+        .crypto-price-minus {
+            color: #f58989;
+        }
+        
+        .t-r {
+            text-align: right;
+        }
     </style>
 </head>
 
 <body>
     <div id="crypto" class="crypto-widget">
-        <h2>Crypto Prices</h2>
-        <p>Last refresh: <span id="refresh-date">-</span></p>
-        <!--<button onclick="refresh()">Refresh</button>
-        <div id="cryptos">
-
-        </div>-->
-        <!--<div>
-            <button onclick="filterBalances()">Filter Balances</button>
-            <button onclick="showAll()">Show All</button>
-        </div>-->
+        <h2>Krypto Preise</h2>
+        <p>Letztes Preisupdate: <span id="refresh-date">-</span></p>
     </div>
 
     <script>
+
+        const INVESTMENTS = {
+            Mom: [
+                {
+                    name: "BTC",
+                    coins: 0.00125713,
+                    investmentPrice: 50 
+                },
+                {
+                    name: "BONK",
+                    coins: 2178649.23747276,
+                    investmentPrice: 50 
+                },
+                {
+                    name: "KAS",
+                    coins: 382.42081862,
+                    investmentPrice: 50 
+                }
+            ],
+            Bro: [
+                {
+                    name: "BTC",
+                    coins: 0.00101913,
+                    investmentPrice: 50 
+                }
+            ],
+            Dome: [
+                {
+                    name: "ETH",
+                    coins: 0.01298029,
+                    investmentPrice: 10 
+                }
+            ]
+        }
+
         $(function () {
 
             const filterPerson = getQueryParameter("person");
@@ -87,7 +139,7 @@
 
                 setInterval(() => {
                     refresh(kurs, filterPerson);
-                }, 1500);
+                }, 150000);
             });
         });
 
@@ -114,10 +166,6 @@
                 url: 'https://api.binance.com/api/v3/ticker/price?symbols=["BTCEUR","ETHEUR","BONKUSDT"]',
                 method: 'GET',
                 success: function (data) {
-
-                    
-
-                    //$('#cryptos').empty();
                     data.forEach(crypto => {
 
                         crypto.symbol = crypto.symbol.replaceAll('EUR', '').replaceAll('USDT', '');
@@ -132,46 +180,26 @@
                             </div>
                         `);
 
-                        if (crypto.symbol == "BTC") {
+                        Object.entries(INVESTMENTS)
+                        .filter(([key, value]) => value.some(item => item.name === crypto.symbol))
+                        .forEach(([key, value]) => {
+                            console.log(key, value);
+
+                            const inv = INVESTMENTS[key].find(x => x.name == crypto.symbol)
+
                             list.append(`
-                                <div class="crypto" type="balance" person="Mom">
+                                <div class="crypto" type="balance" person="${key}">
                                     <div class="crypto-details">
-                                        <span class="crypto-name">${crypto.symbol} Mom</span>
-                                        <span class="crypto-value">0.00125713 BTC</span>
+                                        <span class="crypto-name">${crypto.symbol} ${key}</span>
+                                        <span class="crypto-value">${inv.coins} ${crypto.symbol}</span>
+                                        <span class="crypto-invested">Investiert: ${inv.investmentPrice}€</span>
                                     </div>
-                                    <span class="crypto-price">${parseFloat(crypto.price * 0.00125713).toFixed(2)}€</span>
+                                    <div class="crypto-details">
+                                        <span class="crypto-price">${parseFloat(crypto.price * parseFloat(inv.coins)).toFixed(2)}€</span>
+                                    </div>
                                 </div>
                             `);
-                            list.append(`
-                                <div class="crypto" type="balance" person="Bro">
-                                    <div class="crypto-details">
-                                        <span class="crypto-name">${crypto.symbol} Bro</span>
-                                        <span class="crypto-value">0.00101913 BTC</span>
-                                    </div>
-                                    <span class="crypto-price">${parseFloat(crypto.price * 0.00101913).toFixed(2)}€</span>
-                                </div>
-                            `);
-                        } else if (crypto.symbol == "ETH") {
-                            list.append(`
-                                <div class="crypto" type="balance" person="Dome">
-                                    <div class="crypto-details">
-                                        <span class="crypto-name">${crypto.symbol} Dome</span>
-                                        <span class="crypto-value">0.01298029 ETH</span>
-                                    </div>
-                                    <span class="crypto-price">${parseFloat(crypto.price * 0.01298029).toFixed(2)}€</span>
-                                </div>
-                            `);
-                        } else if (crypto.symbol == "BONK") {
-                            list.append(`
-                                <div class="crypto" type="balance" person="Mom">
-                                    <div class="crypto-details">
-                                        <span class="crypto-name">${crypto.symbol} Mom</span>
-                                        <span class="crypto-value">2178649.23747276 BONK</span>
-                                    </div>
-                                    <span class="crypto-price">${parseFloat(crypto.price * kurs * 2178649.23747276).toFixed(2)}€</span>
-                                </div>
-                            `);
-                        }
+                        });
                     });
 
 
@@ -190,41 +218,50 @@
                                     <span class="crypto-price">${parseFloat(kaspa.price * kurs).toFixed(6)}€</span>
                                 </div>
                             `);
-                            
-                            list.append(`
-                                <div class="crypto" type="balance" person="Mom">
-                                    <div class="crypto-details">
-                                        <span class="crypto-name">KAS Mom</span>
-                                        <span class="crypto-value">382.42081862 KAS</span>
+
+                            Object.entries(INVESTMENTS)
+                            .filter(([key, value]) => value.some(item => item.name === "KAS"))
+                            .forEach(([key, value]) => {
+                                console.log(key, value);
+
+                                const inv = INVESTMENTS[key].find(x => x.name == "KAS")
+
+                                list.append(`
+                                    <div class="crypto" type="balance" person="${key}">
+                                        <div class="crypto-details">
+                                            <span class="crypto-name">KAS ${key}</span>
+                                            <span class="crypto-value">${inv.coins} KAS</span>
+                                            <span class="crypto-invested">Investiert: ${inv.investmentPrice}€</span>
+                                        </div>
+                                        <div class="crypto-details">
+                                            <span class="crypto-price">${parseFloat(kaspa.price * kurs * parseFloat(inv.coins)).toFixed(2)}€</span>
+                                        </div>
                                     </div>
-                                    <span class="crypto-price">${parseFloat(kaspa.price * kurs * 382.42081862).toFixed(2)}€</span>
-                                </div>
-                            `);
+                                `);
+                            });
 
-                            const sumMom = sumPerson(list, 'Mom');
-                            const sumBro = sumPerson(list, 'Bro');
-                            const sumDome = sumPerson(list, 'Dome');
+                            Object.entries(INVESTMENTS)
+                            .forEach(([key, value]) => {
+                                console.log(key, value);
 
-                            list.append(`
-                                <div class="crypto" type="sum" style="background: #383a83;" person="Mom">
-                                    <span class="crypto-name">Mom Total Balance</span>
-                                    <span class="crypto-price">${sumMom.toFixed(2)}€</span>
-                                </div>
-                            `);
+                                const sum = sumPerson(list, key);
+                                const totalInv = totalInvestments(key);
 
-                            list.append(`
-                                <div class="crypto" type="sum" style="background: #383a83;" person="Bro">
-                                    <span class="crypto-name">Bro Total Balance</span>
-                                    <span class="crypto-price">${sumBro.toFixed(2)}€</span>
-                                </div>
-                            `);
+                                console.log(totalInv)
 
-                            list.append(`
-                                <div class="crypto" type="sum" style="background: #383a83;" person="Dome">
-                                    <span class="crypto-name">Dome Total Balance</span>
-                                    <span class="crypto-price">${sumDome.toFixed(2)}€</span>
-                                </div>
-                            `);
+                                list.append(`
+                                    <div class="crypto" type="sum" style="background: #383a83;" person="${key}">
+                                        <div class="crypto-details">
+                                            <span class="crypto-name">${key} Total Balance</span>
+                                            <span class="crypto-invested">Insgesamt investiert: ${totalInv.toFixed(2)}€</span>
+                                        </div>
+                                        <div class="crypto-details">
+                                            <span class="${parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) > 0.00 ? 'crypto-price-plus' : parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) == 0.00 ? 'crypto-price-normal' : 'crypto-price-minus'}">${parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) > 0.00 ? '+' + parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) : parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) == 0.00 ? '0.00' : parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2)}%</span>
+                                            <span class="t-r ${parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) > 0.00 ? 'crypto-price-plus' : parseFloat(((sum.toFixed(2) - totalInv) / totalInv) * 100).toFixed(2) == 0.00 ? 'crypto-price-normal' : 'crypto-price-minus'}">${sum.toFixed(2)}€</span>
+                                        </div>
+                                    </div>
+                                `);
+                            });
 
                             $('#list').remove();
                             $('#crypto').append(list);
@@ -258,6 +295,11 @@
             }, 0);
 
             return sum;
+        }
+
+        function totalInvestments(person) {
+            const totalInvestments = INVESTMENTS[person].reduce((sum, item) => sum + item.investmentPrice, 0);
+            return totalInvestments;
         }
 
         function getKurs(callback) {
