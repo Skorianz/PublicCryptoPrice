@@ -117,6 +117,11 @@
                     name: "KAS",
                     coins: 382.42081862,
                     investmentPrice: 50,
+                },
+                {
+                    name: "TRUMP",
+                    coins: 1.0,
+                    investmentPrice: 65.66,
                 }
             ],
             Bro: [
@@ -168,12 +173,16 @@
             `);
 
             $.ajax({
-                url: 'https://api.binance.com/api/v3/ticker/price?symbols=["BTCEUR","ETHEUR","BONKUSDT"]',
+                url: 'https://api.binance.com/api/v3/ticker/price?symbols=["BTCEUR","ETHEUR","BONKUSDT","TRUMPUSDT"]',
                 method: 'GET',
                 success: function (data) {
                     data.forEach(crypto => {
 
                         crypto.symbol = crypto.symbol.replaceAll('EUR', '').replaceAll('USDT', '');
+
+                        if(crypto.symbol == "BONK" || crypto.symbol == "TRUMP") {
+
+                        }
 
                         if(filterPerson == null) {
 
@@ -181,9 +190,13 @@
                         list.append(`
                             <div class="crypto" type="price">
                                 <span class="crypto-name">${crypto.symbol}</span>
-                                <span class="t-r crypto-price">${crypto.symbol == 'BONK' ? parseFloat(crypto.price * kurs).toFixed(8) : parseFloat(crypto.price).toFixed(2)}€</span>
+                                <span class="t-r crypto-price">${(crypto.symbol == 'BONK' || crypto.symbol == 'TRUMP') ? parseFloat(crypto.price * kurs).toFixed(8) : parseFloat(crypto.price).toFixed(2)}€</span>
                             </div>
                         `);
+
+                        if(crypto.symbol == "BONK" || crypto.symbol == "TRUMP") {
+                            crypto.price = parseFloat(crypto.price * kurs);
+                        }
 
                         Object.entries(INVESTMENTS)
                         .filter(([key, value]) => value.some(item => item.name === crypto.symbol))
